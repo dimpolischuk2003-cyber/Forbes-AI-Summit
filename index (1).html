@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050505" />
+  <meta name="description" content="Forbes Ukraine AI Business Check — коротка діагностика AI-зрілості бізнесу перед Forbes Tech 2026." />
+  <title>Forbes Tech 2026 — AI Business Check</title>
+  <style>
+    :root{
+      --black:#050505;
+      --white:#ffffff;
+      --green:#30ff12;
+      --green-dark:#19bd00;
+      --text:#0b0b0b;
+      --muted:#6d6d6d;
+      --line:#dddddd;
+      --soft:#f6f6f6;
+      --max:1120px;
+      --radius:0px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background:var(--white);
+      line-height:1.5;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+    button,input{font:inherit}
+    button{cursor:pointer}
+    img{max-width:100%;display:block}
+
+    .app{min-height:100vh;background:var(--white)}
+    .container{width:min(var(--max),calc(100% - 48px));margin:0 auto}
+    .serif{font-family:Georgia,"Times New Roman",serif}
+    .screen{display:none;padding:38px 0 72px}
+    .screen.active{display:block}
+
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:20px;
+      padding:22px 0;border-bottom:1px solid var(--line)
+    }
+    .brand{font-family:Georgia,"Times New Roman",serif;font-size:34px;font-weight:700;letter-spacing:-1.6px}
+    .brand small{font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.24em;margin-left:7px;color:#6d6d6d;vertical-align:middle}
+    .event-label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#6d6d6d;white-space:nowrap}
+
+    .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--green-dark);margin-bottom:16px}
+    .hero-title{font-family:Georgia,"Times New Roman",serif;font-size:clamp(52px,7vw,88px);line-height:.94;letter-spacing:-3.2px;max-width:980px;margin:0}
+    .lead{font-size:21px;line-height:1.6;color:#4b4b4b;max-width:800px;margin:28px 0 0}
+
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);margin-top:38px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .metric{padding:22px 24px 22px 0}
+    .metric+.metric{border-left:1px solid var(--line);padding-left:24px}
+    .metric strong{display:block;font-family:Georgia,"Times New Roman",serif;font-size:34px;line-height:1.1}
+    .metric span{font-size:14px;color:var(--muted);display:block;margin-top:4px}
+
+    .btn{border:none;min-height:52px;padding:14px 22px;font-weight:700;transition:.18s ease;background:var(--black);color:var(--white)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-green{background:var(--green);color:var(--black)}
+    .btn-outline{background:transparent;color:var(--black);border:1px solid var(--black)}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+
+    .progress-head{display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:12px;margin-bottom:8px}
+    .progress{height:4px;background:#ececec;margin-bottom:34px;overflow:hidden}
+    .progress>span{display:block;height:100%;background:var(--green);width:0;transition:width .2s ease}
+    .q-kicker{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--green-dark);margin-bottom:12px}
+    .q-title{font-family:Georgia,"Times New Roman",serif;font-size:clamp(34px,5vw,56px);line-height:1.05;letter-spacing:-1.8px;margin:0;max-width:900px}
+    .q-desc{font-size:17px;color:var(--muted);max-width:720px;margin:12px 0 0}
+    .answers{display:grid;gap:12px;margin-top:28px;max-width:900px}
+    .answer{
+      display:flex;align-items:center;justify-content:space-between;gap:22px;width:100%;text-align:left;
+      min-height:64px;padding:18px 20px;background:#fff;border:1px solid #d7d7d7;color:var(--black)
+    }
+    .answer:hover{border-color:var(--black);background:#fafafa}
+    .answer b{font-size:16px}
+    .answer small{display:block;font-weight:400;color:var(--muted);margin-top:5px;line-height:1.45}
+    .back{border:none;background:none;padding:12px 0;text-decoration:underline;color:var(--muted);margin-top:18px}
+
+    .form-wrap{max-width:820px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+    .field{display:grid;gap:8px;font-size:13px;font-weight:700}
+    .field.full{grid-column:1/-1}
+    .field input{width:100%;padding:15px 16px;border:1px solid #cfcfcf;background:#fff;color:#000;font-size:16px;outline:none}
+    .field input:focus{border-color:#000;box-shadow:0 0 0 3px rgba(48,255,18,.25)}
+    .privacy{font-size:12px;color:var(--muted);margin-top:14px}
+
+    .summit-hero{position:relative;overflow:hidden;background:var(--black);color:#fff;border-top:8px solid var(--green);padding:42px;margin-bottom:52px}
+    .summit-hero:before{
+      content:"";position:absolute;inset:-20% -10% auto auto;width:58%;height:170%;opacity:.8;pointer-events:none;
+      background:
+        repeating-linear-gradient(160deg,rgba(48,255,18,.9) 0 3px,rgba(48,255,18,.18) 4px 10px,transparent 11px 18px),
+        linear-gradient(145deg,rgba(48,255,18,.55),transparent 58%);
+      filter:blur(.2px);transform:skewX(-7deg)
+    }
+    .summit-hero>*{position:relative;z-index:1}
+    .summit-hero .eyebrow{color:var(--green)}
+    .summit-title{font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,6vw,72px);line-height:.97;letter-spacing:-2.4px;margin:0;max-width:820px;color:#fff}
+    .summit-sub{font-size:20px;color:#e8e8e8;max-width:780px;margin:20px 0 0;line-height:1.55}
+    .summit-points{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:34px;padding-top:26px;border-top:1px solid #343434}
+    .summit-points strong{display:block;font-family:Georgia,"Times New Roman",serif;font-size:26px}
+    .summit-points span{display:block;color:#cfcfcf;font-size:14px;margin-top:4px}
+
+    .result-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,.55fr);gap:34px;align-items:start}
+    .stage{display:inline-block;background:var(--black);color:#fff;padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+    .diagnosis{font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,5.8vw,66px);line-height:1;letter-spacing:-2px;margin:0;color:#000}
+    .diagnosis-text{font-size:20px;line-height:1.58;color:#333;margin:22px 0 0;max-width:800px}
+    .score-card{background:var(--black);color:#fff;border-top:7px solid var(--green);padding:24px}
+    .score-card .label{font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:#cfcfcf}
+    .score-num{font-family:Georgia,"Times New Roman",serif;font-size:68px;font-weight:700;line-height:1;margin-top:8px}
+    .score-num small{font-family:Arial,Helvetica,sans-serif;font-size:19px;color:#bcbcbc}
+    .score-note{font-size:14px;color:#d4d4d4;margin-top:14px;line-height:1.5}
+
+    .section{padding-top:36px;margin-top:40px;border-top:1px solid var(--line)}
+    .section-title{font-family:Georgia,"Times New Roman",serif;font-size:42px;line-height:1.05;letter-spacing:-1.3px;margin:0}
+    .axes{display:grid;gap:16px;margin-top:24px}
+    .axis{display:grid;grid-template-columns:180px 1fr 54px;gap:14px;align-items:center;font-size:14px}
+    .axis b{font-size:14px}
+    .axisbar{height:8px;background:#e8e8e8;overflow:hidden}
+    .axisbar span{display:block;height:100%;background:var(--green)}
+    .axis-val{text-align:right}
+
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+    .card{border:1px solid var(--line);border-top:4px solid var(--green);padding:22px;min-height:190px;background:#fff}
+    .card-num{font-family:Georgia,"Times New Roman",serif;font-size:26px;font-weight:700;color:var(--green-dark)}
+    .card h4{font-size:18px;margin:18px 0 0}
+    .card p{font-size:14px;color:var(--muted);margin:9px 0 0;line-height:1.55}
+
+    .summit-bottom{background:#fff;border:2px solid var(--black);border-top:8px solid var(--green);padding:34px;margin-top:48px}
+    .summit-bottom h3{font-family:Georgia,"Times New Roman",serif;font-size:42px;line-height:1.04;letter-spacing:-1.4px;margin:10px 0 0;color:#000}
+    .summit-bottom p{font-size:18px;line-height:1.55;color:#333;max-width:800px;margin:16px 0 0}
+
+    .restart{margin-top:22px;border:none;background:none;text-decoration:underline;color:var(--muted);padding:10px 0}
+
+    @media(max-width:860px){
+      .container{width:min(100% - 32px,var(--max))}
+      .screen{padding:28px 0 56px}
+      .result-grid{grid-template-columns:1fr}
+      .score-card{max-width:460px}
+      .cards{grid-template-columns:1fr}
+      .summit-points{grid-template-columns:1fr}
+      .summit-hero{padding:32px}
+      .axis{grid-template-columns:150px 1fr 46px}
+    }
+
+    @media(max-width:640px){
+      .container{width:calc(100% - 24px)}
+      .topbar{padding:16px 0}
+      .brand{font-size:27px}.brand small{font-size:8px;margin-left:4px}.event-label{font-size:10px}
+      .screen{padding:24px 0 44px}
+      .hero-title{font-size:44px;line-height:.98;letter-spacing:-1.8px}
+      .lead{font-size:18px;line-height:1.5;margin-top:20px}
+      .metrics{grid-template-columns:1fr;margin-top:28px}
+      .metric{padding:16px 0}.metric+.metric{border-left:none;border-top:1px solid var(--line);padding-left:0}
+      .q-title{font-size:38px;line-height:1.02;letter-spacing:-1.3px}
+      .q-desc{font-size:16px}
+      .answer{padding:15px 16px;min-height:58px}
+      .form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}
+      .summit-hero{padding:24px 20px;margin-left:-12px;margin-right:-12px;margin-bottom:38px}
+      .summit-hero:before{width:95%;right:-45%;height:120%}
+      .summit-title{font-size:42px;letter-spacing:-1.5px}
+      .summit-sub{font-size:17px}
+      .diagnosis{font-size:44px;letter-spacing:-1.4px}
+      .diagnosis-text{font-size:18px}
+      .score-card{width:100%}
+      .section{padding-top:28px;margin-top:30px}
+      .section-title{font-size:34px}
+      .axis{grid-template-columns:110px 1fr 38px;gap:9px;font-size:12px}
+      .axis b{font-size:12px}
+      .summit-bottom{padding:24px 20px;margin-left:-12px;margin-right:-12px}
+      .summit-bottom h3{font-size:34px}
+      .summit-bottom p{font-size:16px}
+      .btn{width:100%}
+      .actions{display:grid;grid-template-columns:1fr;width:100%}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">Forbes <small>UKRAINE</small></div>
+      <div class="event-label">FORBES TECH 2026</div>
+    </header>
+
+    <main>
+      <section id="intro" class="screen active">
+        <div class="eyebrow">AI Business Check</div>
+        <h1 class="hero-title">Що гальмує розвиток AI у вашій компанії?</h1>
+        <p class="lead">Пройдіть коротку діагностику та побачте, на якому етапі зараз ваша компанія: перші експерименти, системне впровадження чи масштабування AI.</p>
+        <div class="metrics">
+          <div class="metric"><strong>2 хв</strong><span>на проходження</span></div>
+          <div class="metric"><strong>5 зон</strong><span>AI-зрілості бізнесу</span></div>
+          <div class="metric"><strong>1 результат</strong><span>під вашу ситуацію</span></div>
+        </div>
+        <div class="actions"><button id="startBtn" class="btn btn-green" type="button">Почати діагностику →</button></div>
+      </section>
+
+      <section id="quiz" class="screen">
+        <div class="progress-head"><span id="stepText"></span><span id="pctText"></span></div>
+        <div class="progress"><span id="progressBar"></span></div>
+        <div id="qKicker" class="q-kicker"></div>
+        <h2 id="qTitle" class="q-title"></h2>
+        <p id="qDesc" class="q-desc"></p>
+        <div id="answers" class="answers"></div>
+        <button id="backBtn" class="back" type="button">← Назад</button>
+      </section>
+
+      <section id="lead" class="screen">
+        <div class="form-wrap">
+          <div class="eyebrow">Результат готовий</div>
+          <h2 class="q-title">Ваш AI-профіль сформовано</h2>
+          <p class="lead" style="font-size:18px">Залиште контакт, щоб перейти до персонального результату.</p>
+          <form id="leadForm" class="form-grid">
+            <label class="field">Ім’я<input id="nameInput" required placeholder="Ваше ім’я" autocomplete="name"></label>
+            <label class="field">Компанія<input id="companyInput" placeholder="Назва компанії" autocomplete="organization"></label>
+            <label class="field full">Номер телефону<input id="phoneInput" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+380 00 000 00 00"></label>
+            <div class="actions full" style="margin-top:4px">
+              <button class="btn btn-green" type="submit">Перейти до результату →</button>
+              <button id="leadBackBtn" class="btn btn-outline" type="button">← Назад</button>
+            </div>
+          </form>
+          <p class="privacy">Дані з форми можна підключити до CRM через webhook / n8n / Make.</p>
+        </div>
+      </section>
+
+      <section id="result" class="screen" aria-live="polite">
+        <div class="summit-hero">
+          <div class="eyebrow">Forbes Tech 2026 · кінець листопада</div>
+          <h2 class="summit-title">Як бізнес використовує AI вже сьогодні</h2>
+          <p class="summit-sub">Forbes Tech — подія про реальний досвід компаній з AI. Слухайте топових спікерів, розбирайте практичні кейси та обговорюйте власний досвід з іншими керівниками під час нетворкінгу.</p>
+          <div class="summit-points">
+            <div><strong>Реальні кейси</strong><span>досвід компаній, які вже впроваджують AI</span></div>
+            <div><strong>Топові спікери</strong><span>керівники, підприємці та AI-практики</span></div>
+            <div><strong>Нетворкінг</strong><span>обмін рішеннями, результатами та помилками</span></div>
+          </div>
+          <div class="actions"><button id="summitTopBtn" class="btn btn-green" type="button">Дізнатися про Forbes Tech →</button></div>
+        </div>
+
+        <div class="eyebrow">Ваш результат</div>
+        <div class="result-grid">
+          <div>
+            <div id="stageBadge" class="stage"></div>
+            <h2 id="diagnosisTitle" class="diagnosis"></h2>
+            <p id="diagnosisText" class="diagnosis-text"></p>
+          </div>
+          <div class="score-card">
+            <div class="label">AI-зрілість</div>
+            <div class="score-num"><span id="scoreValue"></span><small>/100</small></div>
+            <div id="scoreNote" class="score-note"></div>
+          </div>
+        </div>
+
+        <section class="section">
+          <h3 class="section-title">Що показали ваші відповіді</h3>
+          <div id="axes" class="axes"></div>
+        </section>
+
+        <section class="section">
+          <h3 id="stepsTitle" class="section-title">Що варто зробити наступним</h3>
+          <div id="steps" class="cards"></div>
+        </section>
+
+        <div class="summit-bottom">
+          <div class="eyebrow">Forbes Tech 2026</div>
+          <h3 id="bottomTitle">Обговоріть свій AI-кейс на Forbes Tech</h3>
+          <p id="bottomCopy"></p>
+          <div class="actions"><button id="summitBottomBtn" class="btn btn-green" type="button">Дізнатися про участь →</button></div>
+        </div>
+
+        <button id="restartBtn" class="restart" type="button">Пройти ще раз</button>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  const state = { index: 0, answers: {} };
+  const byId = id => document.getElementById(id);
+  const screens = ['intro','quiz','lead','result'];
+
+  const questions = [
+    {id:'role',kicker:'Про вас',title:'Яка ваша роль у компанії?',options:[['owner','Власник / засновник / CEO'],['c','C-level / директор напряму'],['head','Керівник команди або функції'],['expert','Експерт / спеціаліст']]},
+    {id:'size',kicker:'Про компанію',title:'Якого масштабу ваша компанія?',options:[['s','До 50 людей'],['m','50–250'],['l','250–1000'],['xl','1000+']]},
+    {id:'stage',kicker:'Поточний стан',title:'Як AI сьогодні використовується у вашій компанії?',options:[[0,'Майже ніяк','Окремі люди можуть користуватися AI-інструментами'],[1,'Є окремі експерименти','Команди пробують рішення без єдиного підходу'],[2,'Є кілька робочих кейсів','AI уже працює в окремих процесах'],[3,'AI системно масштабується','Є інтеграції, правила і регулярне використання']]},
+    {id:'strategy',kicker:'Стратегія',title:'Чи є у компанії чіткий план роботи з AI на найближчі 12 місяців?',options:[[0,'Ні'],[1,'Є загальне розуміння'],[2,'Є план по напрямах'],[3,'Є план, бюджет і вимірювані цілі']]},
+    {id:'owner',kicker:'Відповідальність',title:'Хто відповідає за впровадження AI у компанії?',options:[[0,'Ніхто конкретно'],[1,'Окремі ентузіасти або команди'],[2,'Є відповідальний керівник'],[3,'Є власник процесу і зрозуміла модель відповідальності']]},
+    {id:'process',kicker:'Процеси',title:'Наскільки AI уже вбудований у реальні робочі процеси?',options:[[0,'Переважно особисте використання'],[1,'Є пілоти, які працюють окремо'],[2,'Кілька процесів регулярно працюють з AI'],[3,'AI інтегрований у ключові системи та процеси']]},
+    {id:'people',kicker:'Команда',title:'Наскільки команда готова системно працювати з AI?',options:[[0,'Кожен розбирається сам'],[1,'Є навчання, спільні правила ще формуються'],[2,'Є практики та обмін кейсами'],[3,'AI став частиною ролей і щоденної роботи']]},
+    {id:'value',kicker:'Бізнес-ефект',title:'Як ви сьогодні оцінюєте користь від AI?',options:[[0,'Поки не вимірюємо'],[1,'Відстежуємо використання інструментів'],[2,'Міряємо час, швидкість або економію'],[3,'Маємо показники впливу на дохід, витрати або якість']]},
+    {id:'goal',kicker:'Ваш пріоритет',title:'Який результат від AI зараз для вас найважливіший?',options:[['revenue','Зростити продажі або дохід'],['cost','Зменшити витрати та ручну роботу'],['speed','Прискорити команди й рішення'],['product','Створити нові продукти або сервіси'],['customer','Покращити клієнтський досвід'],['unknown','Зрозуміти, де AI дасть найбільший ефект']]}
+  ];
+
+  const labels = {strategy:'Стратегія',owner:'Відповідальність',process:'Процеси',people:'Команда',value:'Бізнес-ефект'};
+  const normalize = value => Math.round((Number(value) || 0) / 3 * 100);
+
+  function showScreen(id){
+    screens.forEach(s => byId(s).classList.toggle('active', s === id));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function renderQuestion(){
+    const q = questions[state.index];
+    const pct = Math.round((state.index + 1) / questions.length * 100);
+    byId('stepText').textContent = `Запитання ${state.index + 1} з ${questions.length}`;
+    byId('pctText').textContent = pct + '%';
+    byId('progressBar').style.width = pct + '%';
+    byId('qKicker').textContent = q.kicker;
+    byId('qTitle').textContent = q.title;
+    byId('qDesc').textContent = q.desc || '';
+    const answers = byId('answers');
+    answers.innerHTML = '';
+
+    q.options.forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'answer';
+      const text = document.createElement('span');
+      const strong = document.createElement('b');
+      strong.textContent = option[1];
+      text.appendChild(strong);
+      if(option[2]){
+        const small = document.createElement('small');
+        small.textContent = option[2];
+        text.appendChild(small);
+      }
+      const arrow = document.createElement('span');
+      arrow.textContent = '→';
+      btn.append(text, arrow);
+      btn.addEventListener('click', () => {
+        state.answers[q.id] = option[0];
+        if(state.index < questions.length - 1){
+          state.index += 1;
+          renderQuestion();
+        }else{
+          showScreen('lead');
+        }
+      });
+      answers.appendChild(btn);
+    });
+    byId('backBtn').style.visibility = state.index === 0 ? 'hidden' : 'visible';
+  }
+
+  function goalText(){
+    return ({revenue:'зростання доходу',cost:'зниження витрат',speed:'швидкість роботи команд',product:'створення нових продуктів',customer:'клієнтський досвід',unknown:'пошук найцінніших AI-сценаріїв'})[state.answers.goal] || 'бізнес-результат';
+  }
+
+  function buildResult(){
+    const values = ['strategy','owner','process','people','value'].map(key => ({key,value:normalize(state.answers[key])}));
+    const sorted = [...values].sort((a,b) => a.value - b.value);
+    const min = sorted[0];
+    const avg = Math.round(values.reduce((sum,item) => sum + item.value,0) / values.length);
+    const company = byId('companyInput').value.trim() || 'вашій компанії';
+
+    let mode = 'gap';
+    let stage = '';
+    let title = '';
+    let text = '';
+    let scoreNote = '';
+    let stepsTitle = 'Що варто зробити наступним';
+
+    if(avg >= 85 && min.value >= 67){
+      mode = 'leader';
+      stage = 'Етап масштабування';
+      title = 'AI уже став системною частиною вашого бізнесу';
+      text = `У ${company} сформована сильна база для роботи з AI: є стратегія, відповідальність, інтеграція в процеси та вимірювання результатів. Наступний етап — швидше масштабувати найсильніші сценарії, підвищувати якість їх роботи та шукати нові можливості для цілі «${goalText()}».`;
+      scoreNote = 'Високий рівень AI-зрілості. Фокус — масштаб, якість і нові можливості.';
+      stepsTitle = 'Де шукати наступний рівень';
+    } else if(avg >= 65){
+      mode = 'scale';
+      stage = 'Сильна база';
+      title = `AI уже працює. Найбільший резерв — ${labels[min.key].toLowerCase()}`;
+      text = `У ${company} більшість базових елементів уже сформовані. AI працює у бізнесі, а зона «${labels[min.key]}» зараз відстає від загального рівня. Її розвиток допоможе швидше масштабувати сильні кейси та отримувати стабільніший результат.`;
+      scoreNote = 'Сильна база для масштабування. Основний резерв зосереджений в одній із зон.';
+    } else {
+      stage = avg < 35 ? 'Початковий етап' : 'Етап систематизації';
+      const titles = {
+        strategy:'AI-ініціативам бракує спільної стратегії',
+        owner:'Відповідальність за AI поки розмита',
+        process:'AI ще не став частиною регулярних процесів',
+        people:'Команді потрібен спільний підхід до AI',
+        value:'Бізнес-ефект AI поки складно оцінити'
+      };
+      title = titles[min.key];
+      const texts = {
+        strategy:`У ${company} AI-ініціативи розвиваються в різних напрямках. Наступний крок — визначити 2–3 бізнес-задачі, які AI має змінити, і пов’язати їх із ціллю «${goalText()}».`,
+        owner:`У ${company} AI уже використовують, однак загальна відповідальність розподілена між кількома людьми або командами. Чіткий власник процесу допоможе швидше переводити сильні кейси в масштаб.`,
+        process:`У ${company} уже є AI-практики та пілоти. Наступний крок — вбудувати найкращі рішення у повторювані робочі процеси та зробити їх частиною щоденної роботи.`,
+        people:`У ${company} рівень використання AI відрізняється між командами. Спільні практики, навчання та зрозумілі очікування допоможуть поширити сильний досвід на всю організацію.`,
+        value:`У ${company} AI уже може створювати користь, проте її ще складно побачити в цифрах. Варто пов’язати конкретні сценарії з часом, витратами, якістю або доходом.`
+      };
+      text = texts[min.key];
+      scoreNote = 'Є значний потенціал для росту AI-зрілості через кілька системних кроків.';
+    }
+
+    byId('stageBadge').textContent = stage;
+    byId('diagnosisTitle').textContent = title;
+    byId('diagnosisText').textContent = text;
+    byId('scoreValue').textContent = avg;
+    byId('scoreNote').textContent = scoreNote;
+    byId('stepsTitle').textContent = stepsTitle;
+
+    const axes = byId('axes');
+    axes.innerHTML = '';
+    values.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'axis';
+      row.innerHTML = `<b>${labels[item.key]}</b><div class="axisbar"><span style="width:${item.value}%"></span></div><div class="axis-val">${item.value}</div>`;
+      axes.appendChild(row);
+    });
+
+    let cards;
+    if(mode === 'leader'){
+      cards = [
+        ['01','Шукати нові бізнес-моделі','Використовувати AI для нових продуктів, сервісів і джерел доходу.'],
+        ['02','Масштабувати сильні кейси','Переносити доведені рішення між командами та функціями.'],
+        ['03','Порівнювати досвід із лідерами','Шукати практики компаній, які вже працюють на високому рівні AI-зрілості.']
+      ];
+    } else {
+      const cardMap = {
+        strategy:[['01','Вибрати 2–3 пріоритети','Сфокусувати AI на конкретних бізнес-задачах.'],['02','Прив’язати їх до цифр','Для кожного напряму визначити очікуваний результат.'],['03','Сфокусувати ресурси','Розвивати ініціативи, які підтримують обрані пріоритети.']],
+        owner:[['01','Призначити власника','Одна людина координує загальний розвиток AI.'],['02','Зібрати робочу групу','Поєднати бізнес, IT, дані та ключові функції.'],['03','Визначити правила','Зафіксувати, хто запускає, вимірює та масштабує кейси.']],
+        process:[['01','Обрати повторюваний процес','Почати там, де AI уже показав користь.'],['02','Вбудувати AI у роботу','Зробити AI частиною конкретного робочого ланцюжка.'],['03','Порівняти результат','Виміряти зміни в часі, витратах та якості.']],
+        people:[['01','Зібрати внутрішні кейси','Показати команді приклади, які вже дають результат.'],['02','Ввести спільні стандарти','Домовитися про інструменти та підхід до перевірки результату.'],['03','Масштабувати через керівників','Лідери команд поширюють робочі практики всередині організації.']],
+        value:[['01','Обрати 2–3 показники','Час, витрати, якість, конверсія або дохід.'],['02','Зафіксувати базовий рівень','Порахувати показники процесу до масштабування AI.'],['03','Інвестувати у доведені кейси','Збільшувати ресурси для сценаріїв із підтвердженим ефектом.']]
+      };
+      cards = cardMap[min.key];
+    }
+
+    const steps = byId('steps');
+    steps.innerHTML = '';
+    cards.forEach(card => {
+      const el = document.createElement('article');
+      el.className = 'card';
+      el.innerHTML = `<div class="card-num">${card[0]}</div><h4>${card[1]}</h4><p>${card[2]}</p>`;
+      steps.appendChild(el);
+    });
+
+    if(mode === 'leader'){
+      byId('bottomTitle').textContent = 'Зустріньте людей, які теж масштабують AI';
+      byId('bottomCopy').textContent = 'На Forbes Tech ви зможете порівняти свої підходи з досвідом інших компаній, почути кейси топових спікерів та обговорити власні рішення під час нетворкінгу.';
+    } else {
+      byId('bottomTitle').textContent = 'Обговоріть свій AI-кейс на Forbes Tech';
+      byId('bottomCopy').textContent = `Ваш найбільший резерв зараз пов’язаний із зоною «${labels[min.key].toLowerCase()}». На Forbes Tech можна почути, як інші компанії вирішують подібні задачі, поставити питання спікерам і обговорити власний досвід на нетворкінгу.`;
+    }
+  }
+
+  byId('startBtn').addEventListener('click', () => {
+    state.index = 0;
+    state.answers = {};
+    showScreen('quiz');
+    renderQuestion();
+  });
+
+  byId('backBtn').addEventListener('click', () => {
+    if(state.index > 0){
+      state.index -= 1;
+      renderQuestion();
+    }
+  });
+
+  byId('leadBackBtn').addEventListener('click', () => {
+    state.index = questions.length - 1;
+    showScreen('quiz');
+    renderQuestion();
+  });
+
+  byId('leadForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const name = byId('nameInput').value.trim();
+    const phone = byId('phoneInput').value.trim();
+    if(!name || !phone) return;
+    buildResult();
+    showScreen('result');
+  });
+
+  byId('restartBtn').addEventListener('click', () => {
+    byId('nameInput').value = '';
+    byId('companyInput').value = '';
+    byId('phoneInput').value = '';
+    state.index = 0;
+    state.answers = {};
+    showScreen('intro');
+  });
+
+  const summitAction = () => {
+    alert('Тут підставте посилання на сторінку Forbes Tech або форму заявки.');
+  };
+  byId('summitTopBtn').addEventListener('click', summitAction);
+  byId('summitBottomBtn').addEventListener('click', summitAction);
+})();
+</script>
+</body>
+</html>
