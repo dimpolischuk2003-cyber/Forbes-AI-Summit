@@ -7,6 +7,20 @@
   <meta name="theme-color" content="#050505" />
   <meta name="description" content="Як ШІ оцінює готовність вашого бізнесу до AI? Короткий тест із 7 запитань перед Forbes Tech 2026." />
   <title>AI-тест: як ШІ оцінює ваш бізнес — Forbes Tech 2026</title>
+  <!-- Meta Pixel: Forbes Tech 2026 -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '991343654014847');
+  fbq('track', 'PageView');
+  </script>
+  <!-- End Meta Pixel -->
   <style>
     :root{
       --black:#050505;
@@ -89,6 +103,13 @@
     .field.full{grid-column:1/-1}
     .field input{width:100%;padding:15px 16px;border:1px solid #cfcfcf;background:#fff;color:#000;font-size:16px;outline:none}
     .field input:focus{border-color:#000;box-shadow:0 0 0 3px rgba(30,146,79,.22)}
+    .consent-row{grid-column:1/-1;display:block;font-size:13px;color:#333;font-weight:400;line-height:1.55}
+    .consent-row label{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+    .consent-row input[type=checkbox]{width:18px;height:18px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--green-dark)}
+    .consent-row a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+    .lead-error{grid-column:1/-1;color:#b91c1c;font-size:14px;font-weight:600;margin:0;line-height:1.5}
+    .btn:disabled{opacity:.65;cursor:wait;transform:none}
+    .honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
     .privacy{font-size:12px;color:var(--muted);margin-top:14px}
     .method-note{max-width:760px;font-size:13px;color:#696969;margin:14px 0 0;line-height:1.6}
     .result-disclaimer{margin-top:26px;padding:18px 20px;background:#f4f7f5;border-left:3px solid var(--green-dark);color:#33423a}
@@ -211,6 +232,8 @@
   </style>
 </head>
 <body>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=991343654014847&amp;ev=PageView&amp;noscript=1" /></noscript>
 <div class="app">
   <div class="container">
     <header class="topbar">
@@ -246,12 +269,20 @@
             <label class="field">Ім’я<input id="nameInput" required placeholder="Ваше ім’я" autocomplete="name"></label>
             <label class="field">Компанія<input id="companyInput" placeholder="Назва компанії" autocomplete="organization"></label>
             <label class="field full">Номер телефону<input id="phoneInput" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+380 00 000 00 00"></label>
+            <div class="consent-row">
+              <label><input id="privacyConsent" type="checkbox" required><span>Погоджуюся на обробку контактних даних і відповідей квізу для формування результату відповідно до <a href="https://forbes.ua/privacy-policy" target="_blank" rel="noopener noreferrer">Політики конфіденційності Forbes Ukraine</a>.</span></label>
+            </div>
+            <div class="consent-row">
+              <label><input id="eventConsent" type="checkbox"><span>Погоджуюся, щоб зі мною зв’язалися щодо участі у Forbes Tech 2026 (необов’язково).</span></label>
+            </div>
+            <div class="honeypot" aria-hidden="true"><label>Сайт<input id="websiteInput" name="website" tabindex="-1" autocomplete="off"></label></div>
+            <p id="leadError" class="lead-error" role="alert" hidden></p>
             <div class="actions full" style="margin-top:4px">
-              <button class="btn btn-green" type="submit">Перейти до результату →</button>
+              <button id="submitLeadBtn" class="btn btn-green" type="submit">Перейти до результату →</button>
               <button id="leadBackBtn" class="btn btn-outline" type="button">← Назад</button>
             </div>
           </form>
-          <p class="privacy">Дані з форми можна підключити до CRM через webhook / n8n / Make.</p>
+          <p class="privacy">Для показу результату ваші відповіді та дані форми передаються до Forbes Ukraine. Контакти не відображаються публічно.</p>
         </div>
       </section>
 
@@ -323,7 +354,7 @@
 
 <script>
 (() => {
-  const state = { index: 0, answers: {} };
+  const state = { index: 0, answers: {}, submitting: false, submissionId: '' };
   const byId = id => document.getElementById(id);
   const screens = ['intro','quiz','lead','result'];
 
@@ -494,6 +525,7 @@
   byId('startBtn').addEventListener('click', () => {
     state.index = 0;
     state.answers = {};
+    state.submissionId = '';
     showScreen('quiz');
     renderQuestion();
   });
@@ -511,19 +543,84 @@
     renderQuestion();
   });
 
-  byId('leadForm').addEventListener('submit', event => {
+  // Відповіді надсилаються лише на наш Vercel endpoint — секрет Google Sheets у браузері відсутній.
+  const selectedAnswer = question => {
+    const key = state.answers[question.id];
+    const option = question.options.find(o => o[0] === key);
+    return {value:key,label:option ? option[1] : ''};
+  };
+
+  byId('leadForm').addEventListener('submit', async event => {
     event.preventDefault();
+    if(state.submitting) return;
     const name = byId('nameInput').value.trim();
+    const company = byId('companyInput').value.trim();
     const phone = byId('phoneInput').value.trim();
-    if(!name || !phone) return;
-    buildResult();
-    showScreen('result');
+    const consent = byId('privacyConsent').checked;
+    if(!name || !phone || !consent) return;
+    const errorNode = byId('leadError');
+    errorNode.hidden = true;
+    errorNode.textContent = '';
+    const btn = byId('submitLeadBtn');
+    const prevBtn = btn.textContent;
+    state.submitting = true;
+    btn.disabled = true;
+    btn.textContent = 'Зберігаємо відповіді…';
+    try {
+      // Алгоритм оцінювання залишається незмінним.
+      buildResult();
+      const query = new URLSearchParams(location.search);
+      if(!state.submissionId){
+        state.submissionId = (window.crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : `quiz-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      }
+      const data = {
+        submissionId:state.submissionId,
+        lead:{name,company,phone,privacyConsent:consent,eventConsent:byId('eventConsent').checked},
+        answers:Object.fromEntries(questions.map(q => [q.id, selectedAnswer(q)])),
+        result:{score:Number(byId('scoreValue').textContent),stage:byId('stageBadge').textContent,diagnosis:byId('diagnosisTitle').textContent},
+        attribution:{
+          utm_source:query.get('utm_source')||'',
+          utm_medium:query.get('utm_medium')||'',
+          utm_campaign:query.get('utm_campaign')||'',
+          utm_content:query.get('utm_content')||'',
+          utm_term:query.get('utm_term')||'',
+          landing_url:location.href,
+          referrer:document.referrer||''
+        },
+        website:byId('websiteInput').value
+      };
+      const response = await fetch('/api/lead', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(data)
+      });
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok || !result.ok) throw new Error('Запис заявки не підтверджено');
+      // Lead рахуємо тільки після підтвердженого запису в Google Sheets.
+      if(window.fbq) fbq('track', 'Lead', {content_name:'Forbes Tech 2026 AI Quiz'});
+      showScreen('result');
+    } catch(err){
+      errorNode.textContent = 'Не вдалося зберегти відповіді. Перевірте з’єднання та спробуйте ще раз.';
+      errorNode.hidden = false;
+      console.error('Forbes Tech: lead submission failed',err);
+    } finally {
+      state.submitting = false;
+      btn.disabled = false;
+      btn.textContent = prevBtn;
+    }
   });
 
   byId('restartBtn').addEventListener('click', () => {
     byId('nameInput').value = '';
     byId('companyInput').value = '';
     byId('phoneInput').value = '';
+    byId('privacyConsent').checked = false;
+    byId('eventConsent').checked = false;
+    byId('websiteInput').value = '';
+    byId('leadError').hidden = true;
+    state.submissionId = '';
     state.index = 0;
     state.answers = {};
     showScreen('intro');
