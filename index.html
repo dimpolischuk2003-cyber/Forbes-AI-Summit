@@ -272,9 +272,6 @@
             <div class="consent-row">
               <label><input id="privacyConsent" type="checkbox" required><span>Погоджуюся на обробку контактних даних і відповідей квізу для формування результату відповідно до <a href="https://forbes.ua/privacy-policy" target="_blank" rel="noopener noreferrer">Політики конфіденційності Forbes Ukraine</a>.</span></label>
             </div>
-            <div class="consent-row">
-              <label><input id="eventConsent" type="checkbox"><span>Погоджуюся, щоб зі мною зв’язалися щодо участі у Forbes Tech 2026 (необов’язково).</span></label>
-            </div>
             <div class="honeypot" aria-hidden="true"><label>Сайт<input id="websiteInput" name="website" tabindex="-1" autocomplete="off"></label></div>
             <p id="leadError" class="lead-error" role="alert" hidden></p>
             <div class="actions full" style="margin-top:4px">
@@ -577,7 +574,7 @@
       }
       const data = {
         submissionId:state.submissionId,
-        lead:{name,company,phone,privacyConsent:consent,eventConsent:byId('eventConsent').checked},
+        lead:{name,company,phone,privacyConsent:consent},
         answers:Object.fromEntries(questions.map(q => [q.id, selectedAnswer(q)])),
         result:{score:Number(byId('scoreValue').textContent),stage:byId('stageBadge').textContent,diagnosis:byId('diagnosisTitle').textContent},
         attribution:{
@@ -597,12 +594,18 @@
         body:JSON.stringify(data)
       });
       const result = await response.json().catch(() => ({}));
-      if(!response.ok || !result.ok) throw new Error('Запис заявки не підтверджено');
+      if(!response.ok || !result.ok){
+        const code = result.code || (response.status === 404 ? 'API_NOT_FOUND' : 'HTTP_' + response.status);
+        const error = new Error('Не вдалося підтвердити збереження заявки');
+        error.code = code;
+        throw error;
+      }
       // Lead рахуємо тільки після підтвердженого запису в Google Sheets.
       if(window.fbq) fbq('track', 'Lead', {content_name:'Forbes Tech 2026 AI Quiz'});
       showScreen('result');
     } catch(err){
-      errorNode.textContent = 'Не вдалося зберегти відповіді. Перевірте з’єднання та спробуйте ще раз.';
+      const code = err.code || 'NETWORK_ERROR';
+      errorNode.textContent = 'Не вдалося зберегти заявку. Код помилки: ' + code + '. Будь ласка, повідомте організатору цей код.';
       errorNode.hidden = false;
       console.error('Forbes Tech: lead submission failed',err);
     } finally {
@@ -617,7 +620,6 @@
     byId('companyInput').value = '';
     byId('phoneInput').value = '';
     byId('privacyConsent').checked = false;
-    byId('eventConsent').checked = false;
     byId('websiteInput').value = '';
     byId('leadError').hidden = true;
     state.submissionId = '';
