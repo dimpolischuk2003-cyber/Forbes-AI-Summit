@@ -61,8 +61,8 @@
       display:flex;align-items:center;justify-content:space-between;gap:20px;
       padding:22px 0;border-bottom:1px solid var(--line)
     }
-    .brand{font-family:Georgia,"Times New Roman",serif;font-size:34px;font-weight:700;letter-spacing:-1.6px}
-    .brand small{font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.24em;margin-left:7px;color:#6d6d6d;vertical-align:middle}
+    .brand{display:block;flex:0 0 auto;width:248px;max-width:50%}
+    .brand img{display:block;width:100%;height:auto;object-fit:contain}
     .event-label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#6d6d6d;white-space:nowrap}
 
     .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--green-dark);margin-bottom:16px}
@@ -195,7 +195,7 @@
     @media(max-width:640px){
       .container{width:calc(100% - 24px)}
       .topbar{padding:16px 0}
-      .brand{font-size:27px}.brand small{font-size:8px;margin-left:4px}.event-label{font-size:10px}
+      .brand{width:44vw;max-width:180px}.event-label{font-size:10px}
       .screen{padding:24px 0 44px}
       .hero-title{font-size:44px;line-height:.98;letter-spacing:-1.8px}
       .lead{font-size:18px;line-height:1.5;margin-top:20px}
@@ -237,7 +237,7 @@
 <div class="app">
   <div class="container">
     <header class="topbar">
-      <div class="brand">Forbes <small>UKRAINE</small></div>
+      <div class="brand"><img src="assets/forbes-ukraine-logo.png" alt="Forbes Ukraine" width="1330" height="334" loading="eager" decoding="async"></div>
       <div class="event-label">FORBES TECH 2026</div>
     </header>
 

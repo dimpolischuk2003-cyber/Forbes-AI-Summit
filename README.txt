@@ -1,31 +1,15 @@
-FORBES TECH 2026 — виправлення форми та діагностика n8n
+FORBES TECH 2026 — оновлення логотипа
 
-ЩО ЗМІНЕНО:
-1. Прибрано другу галочку «Погоджуюся, щоб зі мною зв’язалися щодо Forbes Tech».
-2. Залишено обов'язкову згоду на обробку даних.
-3. Оновлено повідомлення про помилку: на формі буде показано короткий діагностичний код.
-4. Додано GET-перевірку https://forbes-tech.vercel.app/api/lead.
-5. Алгоритм, дизайн, 7 запитань і Meta Pixel 991343654014847 залишено без змін.
+Зміна: текстовий логотип у шапці квізу замінено на наданий логотип Forbes Ukraine.
+Зображення: assets/forbes-ukraine-logo.png (прозорий фон).
 
-ЩО ЗРОБИТИ:
-1. У GitHub-репозиторії сайту замінити index.html та api/lead.js з цього архіву; assets/ залишити поряд (їх можна теж завантажити).
-2. Дочекатися успішного Production deployment на Vercel.
-3. Перевірити в браузері: https://forbes-tech.vercel.app/api/lead
-   Має з'явитися JSON: ok:true, n8nConfigured:true, secretConfigured:true.
-   Якщо 404 — папка api/lead.js відсутня у джерелі деплою або налаштовано невірну кореневу папку/output directory.
-   Якщо false — відсутня відповідна змінна середовища, зміни потребують нового deployment.
-4. Пройти квіз і зробити одну тестову заявку.
-5. Якщо форма показала код помилки, перевірити Vercel Logs та n8n Executions:
-   - N8N_NETWORK_ERROR: адреса n8n неправильна або недоступна із Vercel.
-   - N8N_TIMEOUT: n8n не відповів за 8 секунд.
-   - N8N_HTTP_404: часто невірний Production Webhook URL або неактивний workflow.
-   - N8N_INVALID_RESPONSE: n8n не повернув JSON {"ok":true}.
-   - N8N_HTTP_500: перевірити ноду або виконання n8n.
-   - HTTP_404 або API_NOT_FOUND: маршрут /api/lead відсутній у Vercel.
-   - VERCEL_ENV_MISSING: налаштувати змінні N8N_WEBHOOK_URL та QUIZ_WEBHOOK_SECRET.
+Усі файли завантажувати разом із збереженням структури папок:
+- index.html
+- api/lead.js
+- assets/forbes-ukraine-logo.png
+- assets/forbes-tech-hero.webp
+- assets/ai-summit-2025-interview.webp
 
-ВАЖЛИВО:
-- У n8n вже налаштовано секрет. НЕ перевстановлюйте workflow та НЕ надсилайте секрет у чат.
-- Подія Lead Meta Pixel спрацьовує тільки після відповіді {"ok":true} від сервера.
-- Цей ZIP НЕ доводить, що поточний зовнішній n8n URL працює; перевірка після деплою обов'язкова.
-- Якщо після цього буде збій на ноді Google Sheets, перевірте Map Automatically і 15 заголовків у таблиці.
+Розмістіть файли в корені репозиторію Vercel / GitHub.
+Функція n8n, Meta Pixel і логіка квізу залишені без змін.
+Змінні середовища у Vercel не потрібно змінювати.
